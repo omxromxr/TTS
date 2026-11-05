@@ -1,18 +1,285 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Simple TTS</title>
-</head>
-<body>
-  <textarea id="text" rows="4" cols="50">Hello, type something here!</textarea><br>
-  <button onclick="speak()">Speak</button>
 
-  <script>
-    function speak() {
-      const text = document.getElementById("text").value;
-      const utterance = new SpeechSynthesisUtterance(text);
-      speechSynthesis.speak(utterance);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple TTS</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #101827, #202d46);
+    font-family: Arial, sans-serif;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    background: #1b2639;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 15px 50px #0006;
+}
+
+h1 {
+    margin-top: 0;
+    font-size: 28px;
+}
+
+.subtitle {
+    color: #9baac0;
+    margin-bottom: 25px;
+}
+
+textarea {
+    width: 100%;
+    height: 160px;
+    resize: vertical;
+    background: #101827;
+    border: 1px solid #35445d;
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+    font-family: inherit;
+}
+
+textarea:focus, select:focus {
+    border-color: #6395ff;
+}
+
+label {
+    display: block;
+    margin: 18px 0 8px;
+    color: #c4d0e3;
+    font-size: 14px;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    background: #101827;
+    color: white;
+    border: 1px solid #35445d;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: #6395ff;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+}
+
+.speak {
+    background: #5288ff;
+    color: white;
+}
+
+.stop {
+    background: #34445e;
+    color: white;
+}
+
+.status {
+    color: #8fa5c5;
+    font-size: 13px;
+    margin-top: 18px;
+}
+
+footer {
+    text-align: center;
+    color: #63748e;
+    margin-top: 25px;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Text to Speech</h1>
+    <p class="subtitle">Turn your text into spoken words.</p>
+
+    <textarea id="text">Hello! Welcome to Simple TTS. Write something and press speak.</textarea>
+
+    <label for="language">Language / Voice</label>
+    <select id="language">
+        <option value="">Loading voices...</option>
+    </select>
+
+    <label for="rate">
+        Speaking speed: <span id="rateValue">1.0</span>x
+    </label>
+    <input type="range" id="rate" min="0.25" max="2" step="0.05" value="1">
+
+    <label for="pitch">
+        Pitch: <span id="pitchValue">1.0</span>
+    </label>
+    <input type="range" id="pitch" min="0" max="2" step="0.05" value="1">
+
+    <label for="volume">
+        Volume: <span id="volumeValue">100</span>%
+    </label>
+    <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
+
+    <div class="buttons">
+        <button class="speak" onclick="speak()">▶ Speak</button>
+        <button class="stop" onclick="stopSpeaking()">■ Stop</button>
+    </div>
+
+    <div class="status" id="status">Ready.</div>
+
+    <footer>Simple TTS · Powered by Web Speech API</footer>
+
+</div>
+
+<script>
+const textBox = document.getElementById("text");
+const language = document.getElementById("language");
+
+let voices = [];
+
+function loadVoices() {
+    voices = speechSynthesis.getVoices();
+
+    language.innerHTML = "";
+
+    if (!voices.length) {
+        language.innerHTML = '<option value="">No voices found</option>';
+        return;
     }
-  </script>
+
+    // Sort voices by language
+    voices.sort((a, b) => a.lang.localeCompare(b.lang));
+
+    voices.forEach((voice, index) => {
+        const option = document.createElement("option");
+
+        option.value = index;
+        option.textContent =
+            `${voice.name} (${voice.lang})` +
+            (voice.default ? " ★" : "");
+
+        language.appendChild(option);
+    });
+
+    // Prefer an English voice if available
+    const english = voices.findIndex(v =>
+        v.lang.toLowerCase().startsWith("en")
+    );
+
+    if (english !== -1) {
+        language.value = english;
+    }
+
+    document.getElementById("status").textContent =
+        `${voices.length} voices available.`;
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// Sliders
+document.getElementById("rate").oninput = function() {
+    document.getElementById("rateValue").textContent = this.value;
+};
+
+document.getElementById("pitch").oninput = function() {
+    document.getElementById("pitchValue").textContent = this.value;
+};
+
+document.getElementById("volume").oninput = function() {
+    document.getElementById("volumeValue").textContent =
+        Math.round(this.value * 100);
+};
+
+function speak() {
+    const text = textBox.value.trim();
+
+    if (!text) {
+        document.getElementById("status").textContent =
+            "Please enter some text.";
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    const selectedVoice = voices[language.value];
+
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang;
+    }
+
+    utterance.rate = Number(document.getElementById("rate").value);
+    utterance.pitch = Number(document.getElementById("pitch").value);
+    utterance.volume = Number(document.getElementById("volume").value);
+
+    utterance.onstart = () => {
+        document.getElementById("status").textContent = "Speaking...";
+    };
+
+    utterance.onend = () => {
+        document.getElementById("status").textContent = "Finished.";
+    };
+
+    utterance.onerror = (event) => {
+        document.getElementById("status").textContent =
+            "Speech error: " + event.error;
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+    speechSynthesis.cancel();
+    document.getElementById("status").textContent = "Stopped.";
+}
+</script>
+
 </body>
 </html>
