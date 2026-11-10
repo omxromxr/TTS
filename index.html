@@ -4,282 +4,756 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simple TTS</title>
+<title>Vocalis - Text to Speech</title>
 
 <style>
+:root {
+    --bg: #0b1020;
+    --panel: #141c30;
+    --panel2: #1b2740;
+    --accent: #7c8cff;
+    --accent2: #a18aff;
+    --text: #f1f3ff;
+    --muted: #8995b3;
+    --border: #293653;
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, Arial, sans-serif;
     min-height: 100vh;
+}
+
+header {
+    height: 75px;
+    border-bottom: 1px solid var(--border);
     display: flex;
-    justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #101827, #202d46);
-    font-family: Arial, sans-serif;
-    color: white;
-    padding: 20px;
+    justify-content: space-between;
+    padding: 0 6%;
 }
 
-.container {
-    width: 100%;
-    max-width: 600px;
-    background: #1b2639;
-    padding: 30px;
-    border-radius: 18px;
-    box-shadow: 0 15px 50px #0006;
+.logo {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
-h1 {
-    margin-top: 0;
-    font-size: 28px;
+.logo span {
+    color: var(--accent);
 }
 
-.subtitle {
-    color: #9baac0;
-    margin-bottom: 25px;
+.header-right {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+main {
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 0 22px;
+}
+
+.intro {
+    margin-bottom: 30px;
+}
+
+.intro h1 {
+    font-size: 35px;
+    margin: 0 0 8px;
+}
+
+.intro p {
+    color: var(--muted);
+    margin: 0;
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 23px;
+}
+
+.panel h2 {
+    font-size: 16px;
+    margin: 0 0 18px;
 }
 
 textarea {
     width: 100%;
-    height: 160px;
+    height: 300px;
     resize: vertical;
-    background: #101827;
-    border: 1px solid #35445d;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 15px;
-    color: white;
-    font-size: 16px;
+    background: #0d1425;
+    color: var(--text);
+    padding: 17px;
+    font: inherit;
+    font-size: 15px;
+    line-height: 1.7;
     outline: none;
-    font-family: inherit;
 }
 
 textarea:focus, select:focus {
-    border-color: #6395ff;
+    border-color: var(--accent);
 }
 
-label {
-    display: block;
-    margin: 18px 0 8px;
-    color: #c4d0e3;
-    font-size: 14px;
+textarea::placeholder {
+    color: #63708d;
+}
+
+.editor-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+button, select {
+    font: inherit;
 }
 
 select {
     width: 100%;
+    background: #0d1425;
+    color: var(--text);
+    border: 1px solid var(--border);
     padding: 12px;
-    background: #101827;
-    color: white;
-    border: 1px solid #35445d;
     border-radius: 8px;
-    font-size: 15px;
+    outline: none;
+    cursor: pointer;
 }
 
-.controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+label {
+    display: block;
+    color: #b5bfd6;
+    font-size: 13px;
+    margin: 19px 0 8px;
 }
 
-input[type="range"] {
+.range-heading {
+    display: flex;
+    justify-content: space-between;
+}
+
+.range-heading span {
+    color: var(--accent);
+}
+
+input[type=range] {
     width: 100%;
-    accent-color: #6395ff;
+    accent-color: var(--accent);
+    cursor: pointer;
 }
 
 .buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 25px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 9px;
+    margin-top: 20px;
 }
 
 button {
-    flex: 1;
-    padding: 14px;
-    border: none;
-    border-radius: 9px;
-    font-size: 15px;
-    font-weight: bold;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 10px;
     cursor: pointer;
+    font-weight: 650;
     transition: .2s;
 }
 
 button:hover {
-    transform: translateY(-2px);
     filter: brightness(1.15);
+    transform: translateY(-1px);
 }
 
-.speak {
-    background: #5288ff;
+button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.primary {
+    background: var(--accent);
     color: white;
 }
 
-.stop {
-    background: #34445e;
+.secondary {
+    background: var(--panel2);
     color: white;
 }
 
-.status {
-    color: #8fa5c5;
+.danger {
+    background: #492938;
+    color: #ffb8c8;
+}
+
+.test-button {
+    width: 100%;
+    margin-top: 12px;
+}
+
+.status-box {
+    background: #0d1425;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 13px;
-    margin-top: 18px;
+    color: var(--muted);
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #7c8cff;
+    flex-shrink: 0;
+}
+
+.dot.active {
+    background: #52d99b;
+    box-shadow: 0 0 10px #52d99b;
+}
+
+.dot.error {
+    background: #ff647e;
+}
+
+.small-info {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+
+.section-title {
+    margin-top: 27px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.example {
+    background: var(--panel2);
+    color: #cbd4ee;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 7px;
 }
 
 footer {
     text-align: center;
-    color: #63748e;
-    margin-top: 25px;
+    color: #66728e;
     font-size: 12px;
+    padding: 30px;
+}
+
+@media(max-width: 750px) {
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+
+    main {
+        margin-top: 30px;
+    }
+
+    .intro h1 {
+        font-size: 28px;
+    }
+
+    header {
+        padding: 0 20px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<header>
+    <div class="logo">vocalis<span>.</span></div>
+    <div class="header-right">TEXT TO SPEECH ENGINE</div>
+</header>
 
+<main>
+
+<div class="intro">
     <h1>Text to Speech</h1>
-    <p class="subtitle">Turn your text into spoken words.</p>
+    <p>Transform written words into spoken language.</p>
+</div>
 
-    <textarea id="text">Hello! Welcome to Simple TTS. Write something and press speak.</textarea>
+<div class="workspace">
 
-    <label for="language">Language / Voice</label>
-    <select id="language">
-        <option value="">Loading voices...</option>
+<!-- TEXT EDITOR -->
+
+<section class="panel">
+    <h2>Your text</h2>
+
+    <textarea id="text" placeholder="Start typing or paste your text here...">Hello! Welcome to Vocalis. This is a demonstration of the text to speech engine.</textarea>
+
+    <div class="editor-footer">
+        <span id="counter">0 characters</span>
+        <span id="wordCounter">0 words</span>
+    </div>
+
+    <div class="section-title">TRY AN EXAMPLE</div>
+
+    <div class="examples">
+        <button class="example" onclick="example('en')">English</button>
+        <button class="example" onclick="example('sv')">Swedish</button>
+        <button class="example" onclick="example('de')">German</button>
+        <button class="example" onclick="example('fr')">French</button>
+        <button class="example" onclick="example('es')">Spanish</button>
+        <button class="example" onclick="example('ja')">Japanese</button>
+        <button class="example" onclick="example('ar')">Arabic</button>
+    </div>
+
+    <div class="buttons">
+        <button class="primary" id="playBtn" onclick="speak()">▶ Speak</button>
+        <button class="secondary" onclick="pauseSpeech()" id="pauseBtn">Ⅱ Pause</button>
+        <button class="danger" onclick="stopSpeech()">■ Stop</button>
+    </div>
+
+    <div class="status-box">
+        <div class="dot" id="statusDot"></div>
+        <span id="status">Initializing speech engine...</span>
+    </div>
+</section>
+
+<!-- SETTINGS -->
+
+<section class="panel">
+    <h2>Voice settings</h2>
+
+    <label for="language">Language</label>
+    <select id="language" onchange="updateVoiceList()">
+        <option value="">Loading...</option>
     </select>
 
-    <label for="rate">
-        Speaking speed: <span id="rateValue">1.0</span>x
+    <label for="voice">Voice</label>
+    <select id="voice">
+        <option>Loading voices...</option>
+    </select>
+
+    <button class="secondary test-button" onclick="testVoice()">
+        ♪ Test selected voice
+    </button>
+
+    <label class="range-heading">
+        <span>Speaking speed</span>
+        <span id="rateValue">1.0x</span>
     </label>
     <input type="range" id="rate" min="0.25" max="2" step="0.05" value="1">
 
-    <label for="pitch">
-        Pitch: <span id="pitchValue">1.0</span>
+    <label class="range-heading">
+        <span>Pitch</span>
+        <span id="pitchValue">1.0</span>
     </label>
     <input type="range" id="pitch" min="0" max="2" step="0.05" value="1">
 
-    <label for="volume">
-        Volume: <span id="volumeValue">100</span>%
+    <label class="range-heading">
+        <span>Volume</span>
+        <span id="volumeValue">100%</span>
     </label>
     <input type="range" id="volume" min="0" max="1" step="0.05" value="1">
 
-    <div class="buttons">
-        <button class="speak" onclick="speak()">▶ Speak</button>
-        <button class="stop" onclick="stopSpeaking()">■ Stop</button>
+    <div class="section-title">VOICE ENGINE</div>
+
+    <div class="small-info" id="voiceInfo">
+        Detecting available browser voices...
     </div>
 
-    <div class="status" id="status">Ready.</div>
+    <button class="secondary test-button" onclick="loadVoices()">
+        ↻ Refresh voices
+    </button>
 
-    <footer>Simple TTS · Powered by Web Speech API</footer>
-
+</section>
 </div>
+</main>
+
+<footer>
+    VOCALIS · Browser-based speech synthesis
+</footer>
 
 <script>
-const textBox = document.getElementById("text");
-const language = document.getElementById("language");
+const $ = id => document.getElementById(id);
 
 let voices = [];
+let chunks = [];
+let currentChunk = 0;
+let speaking = false;
+let testMode = false;
+
+const examples = {
+    en: "Hello! How are you doing today? Welcome to Vocalis.",
+    sv: "Hej! Hur mår du idag? Välkommen till Vocalis.",
+    de: "Hallo! Wie geht es dir heute? Willkommen bei Vocalis.",
+    fr: "Bonjour! Comment allez-vous aujourd'hui? Bienvenue sur Vocalis.",
+    es: "¡Hola! ¿Cómo estás hoy? Bienvenido a Vocalis.",
+    ja: "こんにちは！今日はお元気ですか？Vocalisへようこそ。",
+    ar: "مرحباً! كيف حالك اليوم؟ أهلاً بك في Vocalis."
+};
+
+// LOAD VOICES
 
 function loadVoices() {
-    voices = speechSynthesis.getVoices();
+    const available = speechSynthesis.getVoices();
 
-    language.innerHTML = "";
-
-    if (!voices.length) {
-        language.innerHTML = '<option value="">No voices found</option>';
+    if (!available.length) {
+        $("status").textContent = "Waiting for browser voices...";
+        $("voiceInfo").textContent = "No voices loaded yet. Try refreshing.";
         return;
     }
 
-    // Sort voices by language
-    voices.sort((a, b) => a.lang.localeCompare(b.lang));
+    voices = available;
 
-    voices.forEach((voice, index) => {
+    const previousLanguage = $("language").value;
+    const previousVoice = $("voice").value;
+
+    const languages = [...new Set(voices.map(v => v.lang))]
+        .sort((a,b) => a.localeCompare(b));
+
+    $("language").innerHTML = "";
+
+    languages.forEach(lang => {
         const option = document.createElement("option");
-
-        option.value = index;
-        option.textContent =
-            `${voice.name} (${voice.lang})` +
-            (voice.default ? " ★" : "");
-
-        language.appendChild(option);
+        option.value = lang;
+        option.textContent = lang;
+        $("language").appendChild(option);
     });
 
-    // Prefer an English voice if available
-    const english = voices.findIndex(v =>
-        v.lang.toLowerCase().startsWith("en")
-    );
-
-    if (english !== -1) {
-        language.value = english;
+    // Restore previous language, otherwise prefer English.
+    if (languages.includes(previousLanguage)) {
+        $("language").value = previousLanguage;
+    } else {
+        const preferred = languages.find(l => l.startsWith("en")) || languages[0];
+        $("language").value = preferred || "";
     }
 
-    document.getElementById("status").textContent =
-        `${voices.length} voices available.`;
+    updateVoiceList(previousVoice);
+
+    $("voiceInfo").textContent =
+        `${voices.length} voices detected across ${languages.length} language variants.`;
+
+    $("status").textContent = "Speech engine ready.";
+    setStatus("ready");
+}
+
+function updateVoiceList(preferredVoice = "") {
+    const lang = $("language").value;
+
+    const filtered = voices
+        .map((voice, index) => ({voice, index}))
+        .filter(item => item.voice.lang === lang);
+
+    $("voice").innerHTML = "";
+
+    filtered.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.index;
+        option.textContent =
+            item.voice.name +
+            (item.voice.default ? " ★ Default" : "") +
+            (item.voice.localService ? " (Local)" : " (Remote)");
+
+        $("voice").appendChild(option);
+    });
+
+    if (filtered.length) {
+        const saved = filtered.find(item =>
+            String(item.index) === String(preferredVoice)
+        );
+
+        const preferred = saved || filtered.find(item =>
+            item.voice.default
+        ) || filtered[0];
+
+        $("voice").value = preferred.index;
+    }
+
+    saveSettings();
 }
 
 speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
 
-// Sliders
-document.getElementById("rate").oninput = function() {
-    document.getElementById("rateValue").textContent = this.value;
-};
+// SETTINGS
 
-document.getElementById("pitch").oninput = function() {
-    document.getElementById("pitchValue").textContent = this.value;
-};
+function saveSettings() {
+    try {
+        localStorage.setItem("vocalis-settings", JSON.stringify({
+            language: $("language").value,
+            voice: $("voice").value,
+            rate: $("rate").value,
+            pitch: $("pitch").value,
+            volume: $("volume").value
+        }));
+    } catch(e) {}
+}
 
-document.getElementById("volume").oninput = function() {
-    document.getElementById("volumeValue").textContent =
-        Math.round(this.value * 100);
-};
+function restoreSettings() {
+    try {
+        const settings = JSON.parse(
+            localStorage.getItem("vocalis-settings")
+        );
+
+        if (!settings) return;
+
+        $("rate").value = settings.rate ?? 1;
+        $("pitch").value = settings.pitch ?? 1;
+        $("volume").value = settings.volume ?? 1;
+
+        updateSliders();
+
+    } catch(e) {}
+}
+
+["rate", "pitch", "volume"].forEach(id => {
+    $(id).addEventListener("input", () => {
+        updateSliders();
+        saveSettings();
+    });
+});
+
+function updateSliders() {
+    $("rateValue").textContent = Number($("rate").value).toFixed(2) + "x";
+    $("pitchValue").textContent = Number($("pitch").value).toFixed(2);
+    $("volumeValue").textContent =
+        Math.round(Number($("volume").value) * 100) + "%";
+}
+
+// TEXT COUNTER
+
+function updateCounter() {
+    const text = $("text").value;
+
+    $("counter").textContent = text.length + " characters";
+
+    const words = text.trim() ?
+        text.trim().split(/\s+/).length : 0;
+
+    $("wordCounter").textContent = words + " words";
+}
+
+$("text").addEventListener("input", updateCounter);
+updateCounter();
+
+// EXAMPLES
+
+function example(lang) {
+    $("text").value = examples[lang];
+    updateCounter();
+
+    const matching = voices.find(v => v.lang.toLowerCase().startsWith(lang));
+
+    if (matching) {
+        $("language").value = matching.lang;
+        updateVoiceList();
+
+        const index = voices.indexOf(matching);
+        $("voice").value = index;
+    }
+
+    saveSettings();
+}
+
+// SPLIT TEXT INTO MANAGEABLE CHUNKS
+
+function splitText(text, maxLength = 180) {
+    const sentences = text.match(/[^.!?。！？]+[.!?。！？]*|.+$/gu) || [];
+    const result = [];
+
+    for (let sentence of sentences) {
+        sentence = sentence.trim();
+
+        while (sentence.length > maxLength) {
+            let splitAt = sentence.lastIndexOf(" ", maxLength);
+
+            if (splitAt < 1) splitAt = maxLength;
+
+            result.push(sentence.slice(0, splitAt).trim());
+            sentence = sentence.slice(splitAt).trim();
+        }
+
+        if (sentence) result.push(sentence);
+    }
+
+    return result;
+}
+
+// SPEECH
 
 function speak() {
-    const text = textBox.value.trim();
+    const text = $("text").value.trim();
 
     if (!text) {
-        document.getElementById("status").textContent =
-            "Please enter some text.";
+        setStatus("Please enter some text.", "error");
         return;
     }
 
-    speechSynthesis.cancel();
+    stopSpeech();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    chunks = splitText(text);
+    currentChunk = 0;
+    testMode = false;
+    speaking = true;
 
-    const selectedVoice = voices[language.value];
+    setStatus("Preparing speech...", "active");
+    speakNext();
+}
 
-    if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        utterance.lang = selectedVoice.lang;
+function speakNext() {
+    if (!speaking || currentChunk >= chunks.length) {
+        speaking = false;
+        setStatus("Finished speaking.", "ready");
+        return;
     }
 
-    utterance.rate = Number(document.getElementById("rate").value);
-    utterance.pitch = Number(document.getElementById("pitch").value);
-    utterance.volume = Number(document.getElementById("volume").value);
+    const utterance = new SpeechSynthesisUtterance(
+        chunks[currentChunk]
+    );
+
+    const selected = voices[Number($("voice").value)];
+
+    if (selected) {
+        utterance.voice = selected;
+        utterance.lang = selected.lang;
+    }
+
+    utterance.rate = Number($("rate").value);
+    utterance.pitch = Number($("pitch").value);
+    utterance.volume = Number($("volume").value);
 
     utterance.onstart = () => {
-        document.getElementById("status").textContent = "Speaking...";
+        setStatus(
+            `Speaking part ${currentChunk + 1} of ${chunks.length}`,
+            "active"
+        );
     };
 
     utterance.onend = () => {
-        document.getElementById("status").textContent = "Finished.";
+        if (!speaking) return;
+
+        currentChunk++;
+        speakNext();
     };
 
-    utterance.onerror = (event) => {
-        document.getElementById("status").textContent =
-            "Speech error: " + event.error;
+    utterance.onerror = event => {
+        if (!speaking) return;
+
+        speaking = false;
+
+        setStatus(
+            "Voice error: " + event.error,
+            "error"
+        );
     };
 
     speechSynthesis.speak(utterance);
 }
 
-function stopSpeaking() {
-    speechSynthesis.cancel();
-    document.getElementById("status").textContent = "Stopped.";
+function pauseSpeech() {
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+        speechSynthesis.pause();
+        $("pauseBtn").textContent = "▶ Resume";
+        setStatus("Speech paused.");
+    } else if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+        $("pauseBtn").textContent = "Ⅱ Pause";
+        setStatus("Resuming speech...", "active");
+    }
 }
-</script>
 
+function stopSpeech() {
+    speaking = false;
+    speechSynthesis.cancel();
+
+    $("pauseBtn").textContent = "Ⅱ Pause";
+    setStatus("Speech stopped.");
+}
+
+// VOICE TEST
+
+function testVoice() {
+    stopSpeech();
+
+    const selected = voices[Number($("voice").value)];
+
+    if (!selected) {
+        setStatus("No voice selected.", "error");
+        return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(
+        "Hello! This is a test of your selected voice."
+    );
+
+    utterance.voice = selected;
+    utterance.lang = selected.lang;
+
+    utterance.rate = Number($("rate").value);
+    utterance.pitch = Number($("pitch").value);
+    utterance.volume = Number($("volume").value);
+
+    utterance.onstart = () => {
+        setStatus("Testing: " + selected.name, "active");
+    };
+
+    utterance.onend = () => {
+        setStatus("Voice test completed.");
+    };
+
+    utterance.onerror = event => {
+        setStatus("Voice test failed: " + event.error, "error");
+    };
+
+    speechSynthesis.speak(utterance);
+}
+
+// STATUS
+
+function setStatus(message, state = "") {
+    $("status").textContent = message;
+
+    $("statusDot").className = "dot";
+
+    if (state === "active") {
+        $("statusDot").classList.add("active");
+    }
+
+    if (state === "error") {
+        $("statusDot").classList.add("error");
+    }
+}
+
+// INITIALIZATION
+
+restoreSettings();
+loadVoices();
+
+</script>
 </body>
 </html>
